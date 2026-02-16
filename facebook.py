@@ -65,4 +65,5 @@ if name == "main":
     try:
         asyncio.run(enviar_fotos_telegram())
     except KeyboardInterrupt:
-        print("\n🛑 Proceso detenido por el usuario.")1
+        print("\n🛑 Proceso detenido por el usuario.")
+
