@@ -61,9 +61,10 @@ async def enviar_fotos_telegram():
     except Exception as e:
         print(f"❌ Error general: {e}")
 
-if __name__ == "main":
+if __name__ == "__main__":
     try:
         asyncio.run(enviar_fotos_telegram())
     except KeyboardInterrupt:
         print("\n🛑 Proceso detenido por el usuario.")
+
 
